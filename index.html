@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Üçgen Alanı Hesaplayıcı & Görselleştirici - Adem Kaleli</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+        body {
+            background-color: #0b0e14;
+            color: #ffffff;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+        }
+        
+        .container {
+            width: 100%;
+            max-width: 1000px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        /* Header Card */
+        .header-card {
+            background: linear-gradient(135deg, #1e293b, #0f172a);
+            border: 1px solid rgba(56, 189, 248, 0.3);
+            border-radius: 12px;
+            padding: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+        }
+        .header-title h1 {
+            font-size: 1.4rem;
+            color: #38bdf8;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        .header-title p {
+            font-size: 0.85rem;
+            color: #94a3b8;
+            margin-top: 4px;
+        }
+        .student-badge {
+            background: rgba(56, 189, 248, 0.1);
+            border: 1px solid #0284c7;
+            padding: 10px 16px;
+            border-radius: 8px;
+            text-align: right;
+        }
+        .student-badge .name { font-size: 0.95rem; font-weight: 700; color: #f8fafc; }
+        .student-badge .number { font-size: 0.85rem; color: #38bdf8; font-weight: 600; }
+        .student-badge .course { font-size: 0.72rem; color: #94a3b8; text-transform: uppercase; }
+
+        /* Main Content Grid */
+        .main-grid {
+            display: grid;
+            grid-template-columns: 350px 1fr;
+            gap: 20px;
+        }
+
+        /* Input Controls Panel */
+        .card {
+            background: #182232;
+            border: 1px solid #233248;
+            border-radius: 12px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+        .card-title {
+            font-size: 1rem;
+            color: #cbd5e1;
+            font-weight: 600;
+            border-bottom: 1px solid #233248;
+            padding-bottom: 8px;
+        }
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+        .form-group label {
+            font-size: 0.85rem;
+            color: #94a3b8;
+            font-weight: 600;
+        }
+        .form-group input {
+            background: #0f172a;
+            border: 1px solid #334155;
+            color: #ffffff;
+            padding: 10px 12px;
+            border-radius: 8px;
+            font-size: 1rem;
+            outline: none;
+            transition: border 0.2s;
+        }
+        .form-group input:focus {
+            border-color: #38bdf8;
+        }
+
+        .btn {
+            background: #0284c7;
+            color: white;
+            border: none;
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .btn:hover {
+            background: #0369a1;
+            transform: translateY(-1px);
+        }
+
+        /* Result Display Card */
+        .result-box {
+            background: linear-gradient(135deg, #0284c7, #0369a1);
+            border-radius: 10px;
+            padding: 16px;
+            text-align: center;
+            box-shadow: 0 4px 15px rgba(2, 132, 199, 0.3);
+        }
+        .result-box .label { font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1px; color: #bae6fd; }
+        .result-box .val { font-size: 2.2rem; font-weight: 700; color: #ffffff; margin: 4px 0; }
+        .result-box .unit { font-size: 0.9rem; color: #e0f2fe; }
+
+        /* Canvas & Visualization */
+        .visual-card {
+            background: #182232;
+            border: 1px solid #233248;
+            border-radius: 12px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            min-height: 320px;
+        }
+        canvas {
+            width: 100%;
+            height: 280px;
+            display: block;
+        }
+
+        /* Python Code Display */
+        .code-card {
+            background: #0f172a;
+            border: 1px solid #1e293b;
+            border-radius: 12px;
+            padding: 20px;
+        }
+        pre {
+            background: #0b0e14;
+            padding: 14px;
+            border-radius: 8px;
+            overflow-x: auto;
+            color: #38bdf8;
+            font-family: 'Consolas', 'Courier New', monospace;
+            font-size: 0.85rem;
+            line-height: 1.5;
+            border: 1px solid #1e293b;
+        }
+
+        @media (max-width: 768px) {
+            .main-grid { grid-template-columns: 1fr; }
+            .student-badge { text-align: left; width: 100%; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <!-- Header -->
+        <div class="header-card">
+            <div class="header-title">
+                <h1>📐 Üçgen Alanı Hesaplayıcı</h1>
+                <p>Klavyeden veya arayüzden girilen değerlere göre canlı üçgen çizimi ve alan hesabı</p>
+            </div>
+            <div class="student-badge">
+                <div class="name">Adem Kaleli</div>
+                <div class="number">2615501083</div>
+                <div class="course">Algoritma ve Programlamaya Giriş</div>
+            </div>
+        </div>
+
+        <!-- Main Workspace -->
+        <div class="main-grid">
+            <!-- Left Controls -->
+            <div class="card">
+                <div class="card-title">Değer Girişi</div>
+                
+                <div class="form-group">
+                    <label for="inputBase">Taban Uzunluğu (a):</label>
+                    <input type="number" id="inputBase" value="12" min="1" step="any" oninput="calculate()">
+                </div>
+
+                <div class="form-group">
+                    <label for="inputHeight">Yükseklik (h):</label>
+                    <input type="number" id="inputHeight" value="8" min="1" step="any" oninput="calculate()">
+                </div>
+
+                <div class="result-box">
+                    <div class="label">Hesaplanan Alan</div>
+                    <div class="val" id="resArea">48.00</div>
+                    <div class="unit">birim²</div>
+                </div>
+
+                <div style="font-size: 0.8rem; color: #64748b; line-height: 1.4;">
+                    💡 <strong>Formül:</strong> $\text{Alan} = \frac{\text{Taban} \times \text{Yükseklik}}{2}$
+                </div>
+            </div>
+
+            <!-- Right Canvas Visualization -->
+            <div class="visual-card">
+                <div class="card-title" style="width: 100%; margin-bottom: 10px;">Canlı Üçgen Çizimi</div>
+                <canvas id="triangleCanvas"></canvas>
+            </div>
+        </div>
+
+        <!-- Python Code Viewer -->
+        <div class="code-card">
+            <div class="card-title" style="margin-bottom: 12px; color: #38bdf8;">🐍 Python Algoritma Kodu (ucgen_alani_hesapla.py)</div>
+            <pre><code># =========================================================
+# Ders: Algoritma ve Programlamaya Giriş
+# Öğrenci: Adem Kaleli (2615501083)
+# =========================================================
+
+def ucgen_alani_hesapla():
+    try:
+        taban = float(input("Üçgenin taban uzunluğunu giriniz: "))
+        yukseklik = float(input("Üçgenin yüksekliğini giriniz: "))
+
+        if taban <= 0 or yukseklik <= 0:
+            print("[HATA] Taban ve yükseklik 0 veya negatif olamaz!")
+            return
+
+        alan = (taban * yukseklik) / 2
+        print(f"Hesaplanan Alan: {alan:.2f}")
+
+    except ValueError:
+        print("[HATA] Lütfen geçerli bir sayısal değer giriniz!")
+
+if __name__ == "__main__":
+    ucgen_alani_hesapla()</code></pre>
+        </div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('triangleCanvas');
+        const ctx = canvas.getContext('2d');
+
+        function resizeCanvas() {
+            canvas.width = canvas.clientWidth;
+            canvas.height = canvas.clientHeight;
+            drawTriangle();
+        }
+        window.addEventListener('resize', resizeCanvas);
+
+        function calculate() {
+            const b = parseFloat(document.getElementById('inputBase').value) || 0;
+            const h = parseFloat(document.getElementById('inputHeight').value) || 0;
+
+            if (b <= 0 || h <= 0) {
+                document.getElementById('resArea').innerText = '0.00';
+            } else {
+                const area = (b * h) / 2;
+                document.getElementById('resArea').innerText = area.toFixed(2);
+            }
+
+            drawTriangle();
+        }
+
+        function drawTriangle() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            const b = parseFloat(document.getElementById('inputBase').value) || 0;
+            const h = parseFloat(document.getElementById('inputHeight').value) || 0;
+
+            if (b <= 0 || h <= 0) return;
+
+            const padding = 40;
+            const maxW = canvas.width - padding * 2;
+            const maxH = canvas.height - padding * 2;
+
+            // Scale factor to fit inside canvas
+            const scale = Math.min(maxW / b, maxH / h);
+
+            const scaledB = b * scale;
+            const scaledH = h * scale;
+
+            // Coordinates for centered triangle
+            const x1 = (canvas.width - scaledB) / 2;
+            const y1 = (canvas.height + scaledH) / 2;
+
+            const x2 = x1 + scaledB;
+            const y2 = y1;
+
+            const x3 = x1 + scaledB / 2;
+            const y3 = y1 - scaledH;
+
+            // Draw Triangle Body
+            ctx.beginPath();
+            ctx.moveTo(x1, y1);
+            ctx.lineTo(x2, y2);
+            ctx.lineTo(x3, y3);
+            ctx.closePath();
+
+            ctx.fillStyle = 'rgba(56, 189, 248, 0.15)';
+            ctx.fill();
+
+            ctx.strokeStyle = '#38bdf8';
+            ctx.lineWidth = 3;
+            ctx.stroke();
+
+            // Draw Height Line (Dashed)
+            ctx.beginPath();
+            ctx.setLineDash([5, 5]);
+            ctx.moveTo(x3, y3);
+            ctx.lineTo(x3, y1);
+            ctx.strokeStyle = '#f43f5e';
+            ctx.lineWidth = 2;
+            ctx.stroke();
+            ctx.setLineDash([]);
+
+            // Base Text
+            ctx.fillStyle = '#f8fafc';
+            ctx.font = '13px Segoe UI';
+            ctx.textAlign = 'center';
+            ctx.fillText(`Taban (a) = ${b}`, x1 + scaledB / 2, y1 + 25);
+
+            // Height Text
+            ctx.fillStyle = '#f43f5e';
+            ctx.textAlign = 'right';
+            ctx.fillText(`h = ${h}`, x3 - 8, y3 + scaledH / 2);
+        }
+
+        // Initial setup
+        resizeCanvas();
+        calculate();
+    </script>
+</body>
+</html>
